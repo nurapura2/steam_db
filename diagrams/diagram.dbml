@@ -1,0 +1,173 @@
+// --- TABLES ---
+
+Table users {
+  user_id serial [pk]
+  username text [not null, unique]
+  email text [not null, unique]
+  password_hash text [not null]
+  created_at timestamptz [default: `now()`]
+}
+
+Table wallets {
+  wallet_id serial [pk]
+  user_id integer [not null]
+  currency varchar(3) [default: 'USD']
+  balance numeric(12, 2) [default: 0]
+  updated_at timestamptz [default: `now()`]
+}
+
+Table games {
+  game_id serial [pk]
+  developer_id integer
+  title text [not null]
+  price numeric(12, 2) [not null, default: 0]
+  release_date timestamptz
+  age_rating text
+  description text
+}
+
+Table system_requirements {
+  requirement_id serial [pk]
+  game_id integer
+  platform text [not null]
+  requirement_type text [note: 'minimum or recommended']
+  cpu text
+  gpu text
+  ram_gb integer
+  storage_gb integer
+}
+
+Table library {
+  game_id integer
+  user_id integer
+  purchase_id integer
+  added_date timestamptz [default: `now()`]
+
+  indexes {
+    (user_id, game_id) [pk] 
+  }
+}
+
+Table purchases {
+  purchase_id serial [pk]
+  user_id integer [not null]
+  purchase_type text
+  payment_method text
+  status text
+  purchase_date timestamptz [default: `now()`]
+}
+
+Table purchases_item {
+  purchase_item_id serial [pk]
+  game_id integer
+  purchase_id integer
+  price_at_purchase numeric(12, 2) [not null]
+}
+
+Table reviews {
+  review_id serial [pk]
+  user_id integer
+  game_id integer
+  review_type text
+  comment text
+  review_date timestamptz [default: `now()`]
+}
+
+Table developers {
+  developer_id serial [pk]
+  name text [not null]
+  country text
+}
+
+Table transactions {
+  transaction_id serial [pk]
+  user_id integer
+  game_id integer
+  amount numeric(12, 2) [not null]
+  transaction_date timestamptz [default: `now()`]
+  promo_id integer
+}
+
+Table categories {
+  category_id serial [pk]
+  name text [not null, unique]
+}
+
+Table game_categories {
+  game_id integer
+  category_id integer
+
+  Indexes {
+    (game_id, category_id) [pk]
+  }
+}
+
+Table friends {
+  user_id integer
+  friend_id integer
+  status text
+
+  Indexes {
+    (user_id, friend_id) [pk]
+  }
+}
+
+Table messages {
+  message_id serial [pk]
+  sender_id integer
+  receiver_id integer
+  content text [not null]
+  sent_at timestamptz [default: `now()`]
+  is_read boolean [default: false]
+}
+
+Table achievements {
+  achievement_id serial [pk]
+  game_id integer
+  title text [not null]
+  description text
+}
+
+Table user_achievements {
+  user_id integer
+  achievement_id integer
+  unlocked_at timestamptz [default: `now()`]
+
+  Indexes {
+    (user_id, achievement_id) [pk]
+  }
+}
+
+// --- RELATIONSHIPS (Preserved Structure) ---
+
+// User Accounts & Profiles
+Ref: wallets.user_id - users.user_id
+Ref: library.user_id - users.user_id
+Ref: reviews.user_id > users.user_id
+Ref: transactions.user_id > users.user_id
+Ref: user_achievements.user_id > users.user_id
+
+// Social & Communication
+Ref: friends.user_id > users.user_id
+Ref: friends.friend_id > users.user_id
+Ref: messages.sender_id > users.user_id
+Ref: messages.receiver_id > users.user_id
+
+// Game Metadata
+Ref: games.developer_id > developers.developer_id
+Ref: system_requirements.game_id > games.game_id
+Ref: game_categories.game_id > games.game_id
+Ref: game_categories.category_id > categories.category_id
+Ref: library.game_id > games.game_id
+Ref: reviews.game_id > games.game_id
+
+// Sales & Transactions
+Ref: purchases.user_id > users.user_id
+Ref: purchases_item.purchase_id > purchases.purchase_id
+Ref: purchases_item.game_id > games.game_id
+Ref: library.purchase_id - purchases.purchase_id
+Ref: transactions.game_id > games.game_id
+
+// Achievements
+Ref: achievements.game_id > games.game_id
+Ref: user_achievements.achievement_id > achievements.achievement_id
