@@ -8,7 +8,7 @@ CREATE TABLE "users" (
 
 CREATE TABLE "wallets" (
   "wallet_id" serial PRIMARY KEY,
-  "user_id" integer NOT NULL,
+  "user_id" integer UNIQUE NOT NULL,
   "currency" varchar(3) DEFAULT 'USD',
   "balance" numeric(12,2) DEFAULT 0,
   "updated_at" timestamptz DEFAULT (now())
@@ -24,15 +24,35 @@ CREATE TABLE "games" (
   "description" text
 );
 
-CREATE TABLE "system_requirements" (
-  "requirement_id" serial PRIMARY KEY,
-  "game_id" integer,
-  "platform" text NOT NULL,
-  "requirement_type" text,
-  "cpu" text,
-  "gpu" text,
-  "ram_gb" integer,
-  "storage_gb" integer
+CREATE TABLE "sessions" (
+  "session_id" serial PRIMARY KEY,
+  "user_id" integer NOT NULL,
+  "game_id" integer NOT NULL,
+  "start_time" timestamptz DEFAULT (now()),
+  "end_time" timestamptz
+);
+
+CREATE TABLE "promotions" (
+  "promo_id" serial PRIMARY KEY,
+  "code" varchar(20) UNIQUE NOT NULL,
+  "discount_percent" numeric(5,2),
+  "start_date" timestamptz,
+  "end_date" timestamptz
+);
+
+CREATE TABLE "reports" (
+  "report_id" serial PRIMARY KEY,
+  "top_game_id" integer,
+  "total_revenue" numeric(15,2),
+  "average_rating" numeric(3,2),
+  "generated_at" timestamptz DEFAULT (now())
+);
+
+CREATE TABLE "badges" (
+  "badge_id" serial PRIMARY KEY,
+  "user_id" integer NOT NULL,
+  "title" text NOT NULL,
+  "awarded_at" timestamptz DEFAULT (now())
 );
 
 CREATE TABLE "library" (
@@ -49,7 +69,8 @@ CREATE TABLE "purchases" (
   "purchase_type" text,
   "payment_method" text,
   "status" text,
-  "purchase_date" timestamptz DEFAULT (now())
+  "purchase_date" timestamptz DEFAULT (now()),
+  "promo_id" integer
 );
 
 CREATE TABLE "purchases_item" (
@@ -73,7 +94,6 @@ CREATE TABLE "developers" (
   "name" text NOT NULL,
   "country" text
 );
-
 
 CREATE TABLE "categories" (
   "category_id" serial PRIMARY KEY,
@@ -116,7 +136,7 @@ CREATE TABLE "user_achievements" (
   PRIMARY KEY ("user_id", "achievement_id")
 );
 
-COMMENT ON COLUMN "system_requirements"."requirement_type" IS 'minimum or recommended';
+COMMENT ON COLUMN "promotions"."discount_percent" IS 'e.g. 15.00 for 15%';
 
 ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "wallets" ("user_id");
 
@@ -125,6 +145,8 @@ ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "library" ("user_id")
 ALTER TABLE "reviews" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
 ALTER TABLE "user_achievements" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+
+ALTER TABLE "badges" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
 ALTER TABLE "friends" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
@@ -136,8 +158,6 @@ ALTER TABLE "messages" ADD FOREIGN KEY ("receiver_id") REFERENCES "users" ("user
 
 ALTER TABLE "games" ADD FOREIGN KEY ("developer_id") REFERENCES "developers" ("developer_id");
 
-ALTER TABLE "system_requirements" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
-
 ALTER TABLE "game_categories" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
 
 ALTER TABLE "game_categories" ADD FOREIGN KEY ("category_id") REFERENCES "categories" ("category_id");
@@ -146,6 +166,12 @@ ALTER TABLE "library" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id")
 
 ALTER TABLE "reviews" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
 
+ALTER TABLE "sessions" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+
+ALTER TABLE "sessions" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
+
+ALTER TABLE "reports" ADD FOREIGN KEY ("top_game_id") REFERENCES "games" ("game_id");
+
 ALTER TABLE "purchases" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
 ALTER TABLE "purchases_item" ADD FOREIGN KEY ("purchase_id") REFERENCES "purchases" ("purchase_id");
@@ -153,6 +179,8 @@ ALTER TABLE "purchases_item" ADD FOREIGN KEY ("purchase_id") REFERENCES "purchas
 ALTER TABLE "purchases_item" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
 
 ALTER TABLE "purchases" ADD FOREIGN KEY ("purchase_id") REFERENCES "library" ("purchase_id");
+
+ALTER TABLE "purchases" ADD FOREIGN KEY ("promo_id") REFERENCES "promotions" ("promo_id");
 
 ALTER TABLE "achievements" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
 
