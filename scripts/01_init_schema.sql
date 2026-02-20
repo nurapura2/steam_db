@@ -74,14 +74,6 @@ CREATE TABLE "developers" (
   "country" text
 );
 
-CREATE TABLE "transactions" (
-  "transaction_id" serial PRIMARY KEY,
-  "user_id" integer,
-  "game_id" integer,
-  "amount" numeric(12,2) NOT NULL,
-  "transaction_date" timestamptz DEFAULT (now()),
-  "promo_id" integer
-);
 
 CREATE TABLE "categories" (
   "category_id" serial PRIMARY KEY,
@@ -132,8 +124,6 @@ ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "library" ("user_id")
 
 ALTER TABLE "reviews" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
-ALTER TABLE "transactions" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
-
 ALTER TABLE "user_achievements" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
 ALTER TABLE "friends" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
@@ -163,8 +153,6 @@ ALTER TABLE "purchases_item" ADD FOREIGN KEY ("purchase_id") REFERENCES "purchas
 ALTER TABLE "purchases_item" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
 
 ALTER TABLE "purchases" ADD FOREIGN KEY ("purchase_id") REFERENCES "library" ("purchase_id");
-
-ALTER TABLE "transactions" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
 
 ALTER TABLE "achievements" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
 

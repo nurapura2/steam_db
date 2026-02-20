@@ -79,14 +79,6 @@ Table developers {
   country text
 }
 
-Table transactions {
-  transaction_id serial [pk]
-  user_id integer
-  game_id integer
-  amount numeric(12, 2) [not null]
-  transaction_date timestamptz [default: `now()`]
-  promo_id integer
-}
 
 Table categories {
   category_id serial [pk]
@@ -144,7 +136,6 @@ Table user_achievements {
 Ref: wallets.user_id - users.user_id
 Ref: library.user_id - users.user_id
 Ref: reviews.user_id > users.user_id
-Ref: transactions.user_id > users.user_id
 Ref: user_achievements.user_id > users.user_id
 
 // Social & Communication
@@ -166,7 +157,6 @@ Ref: purchases.user_id > users.user_id
 Ref: purchases_item.purchase_id > purchases.purchase_id
 Ref: purchases_item.game_id > games.game_id
 Ref: library.purchase_id - purchases.purchase_id
-Ref: transactions.game_id > games.game_id
 
 // Achievements
 Ref: achievements.game_id > games.game_id
