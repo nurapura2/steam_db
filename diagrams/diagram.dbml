@@ -1,11 +1,11 @@
-// --- TABLES ---
+//TABLES
 
 Table users {
   user_id serial [pk]
   username text [unique, not null]
   email text [unique, not null]
   password_hash text [not null]
-  created_at timestamptz [default: `now()`]
+  created_at timestamptz
 }
 
 Table wallets {
@@ -13,7 +13,7 @@ Table wallets {
   user_id integer [unique, not null]
   currency varchar(3) [default: 'USD']
   balance numeric(12, 2) [default: 0]
-  updated_at timestamptz [default: `now()`]
+  updated_at timestamptz
 }
 
 Table games {
@@ -30,38 +30,30 @@ Table sessions {
   session_id serial [pk]
   user_id integer [not null]
   game_id integer [not null]
-  start_time timestamptz [default: `now()`]
+  start_time timestamptz
   end_time timestamptz
 }
 
 Table promotions {
   promo_id serial [pk]
   code varchar(20) [unique, not null]
-  discount_percent numeric(5, 2) [note: 'e.g. 15.00 for 15%']
+  discount_percent numeric(5, 2)
   start_date timestamptz
   end_date timestamptz
-}
-
-Table reports {
-  report_id serial [pk]
-  top_game_id integer
-  total_revenue numeric(15, 2)
-  average_rating numeric(3, 2)
-  generated_at timestamptz [default: `now()`]
 }
 
 Table badges {
   badge_id serial [pk]
   user_id integer [not null]
   title text [not null]
-  awarded_at timestamptz [default: `now()`]
+  awarded_at timestamptz
 }
 
 Table library {
   game_id integer
   user_id integer
   purchase_id integer
-  added_date timestamptz [default: `now()`]
+  added_date timestamptz
 
   indexes {
     (user_id, game_id) [pk] 
@@ -74,7 +66,7 @@ Table purchases {
   purchase_type text
   payment_method text
   status text
-  purchase_date timestamptz [default: `now()`]
+  purchase_date timestamptz
   promo_id integer
 }
 
@@ -89,15 +81,16 @@ Table reviews {
   review_id serial [pk]
   user_id integer
   game_id integer
-  review_type text
+  review_type boolean
   comment text
-  review_date timestamptz [default: `now()`]
+  review_date timestamptz
 }
 
 Table developers {
   developer_id serial [pk]
   name text [not null]
   country text
+  descrption text
 }
 
 Table categories {
@@ -129,7 +122,7 @@ Table messages {
   sender_id integer
   receiver_id integer
   content text [not null]
-  sent_at timestamptz [default: `now()`]
+  sent_at timestamptz
   is_read boolean [default: false]
 }
 
@@ -143,14 +136,14 @@ Table achievements {
 Table user_achievements {
   user_id integer
   achievement_id integer
-  unlocked_at timestamptz [default: `now()`]
+  unlocked_at timestamptz 
 
   Indexes {
     (user_id, achievement_id) [pk]
   }
 }
 
-// --- RELATIONSHIPS ---
+// RELATIONSHIPS
 
 // User Accounts & Profiles
 Ref: wallets.user_id - users.user_id
@@ -173,7 +166,6 @@ Ref: library.game_id > games.game_id
 Ref: reviews.game_id > games.game_id
 Ref: sessions.user_id > users.user_id
 Ref: sessions.game_id > games.game_id
-Ref: reports.top_game_id > games.game_id
 
 // Sales & Promotions
 Ref: purchases.user_id > users.user_id
