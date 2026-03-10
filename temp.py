@@ -18,7 +18,10 @@ N_FRIEND_PAIRS = 1400
 N_MESSAGES = 5000
 N_USER_ACHIEVEMENTS = 800
 
-game_prices = {}  # глобальный словарь для хранения цен игр по их ID
+game_prices = {}  
+purchase_to_user = {}
+purchase_to_games = {}
+purchase_to_date = {}
 
 # users
 def generate_users():    
@@ -379,12 +382,13 @@ def generate_purchases():
     start_date = datetime(2023, 1, 1)
     end_date = datetime(2026, 3, 10)
 
+    global purchase_to_user, purchase_to_date
+
     with open("purchases.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO purchases (purchase_id, user_id, purchase_type, payment_method, status, purchase_date, promo_id) VALUES\n")
         lines = []
         for i in range(N_PURCHASES):
             user_id = random.randint(1, N_USERS)
-            game_id = random.randint(1, N_GAMES)
             purchase_type = random.choice(purchase_types)
             delta_days = random.randint(0, (end_date - start_date).days)
             delta_seconds = random.randint(0, 86400)
@@ -397,6 +401,10 @@ def generate_purchases():
             line = f"({i + 1}, {user_id}, '{purchase_type}', '{payment_method}', '{status}', '{purchase_date_str}', {promo_id})"
             lines.append(line)
 
+            # сохраняем в глобальный словарь
+            purchase_to_user[i + 1] = user_id
+            purchase_to_date[i + 1] = purchase_date_str
+
         f.write(",\n".join(lines) + ";")
 
     print("Файл purchases.sql успешно создан!")
@@ -406,11 +414,13 @@ def generate_purchase_items():
     START_DATE = datetime(2023, 1, 1)
     END_DATE = datetime(2026, 3, 10)
 
+    global purchase_to_games  # используем глобальный словарь
+
     lines = []
     purchase_id = 1
     purchase_item_id = 1
 
-    for _ in range(1, N_USERS + 1):
+    for user_id in range(1, N_USERS + 1):
         num_purchases = random.randint(1, MAX_PURCHASES_PER_USER)
         last_purchase_date = START_DATE
 
@@ -421,13 +431,19 @@ def generate_purchase_items():
 
             # генерируем 1..MAX_ITEMS_PER_PURCHASE предметов для этой покупки
             n_items = random.randint(1, MAX_ITEMS_PER_PURCHASE)
+            chosen_games = []
+
             for _ in range(n_items):
                 game_id = random.choice(list(game_prices.keys()))
                 price_at_purchase = game_prices[game_id]
+                chosen_games.append(game_id)
 
                 line = f"({purchase_item_id}, {game_id}, {purchase_id}, {price_at_purchase})"
                 lines.append(line)
                 purchase_item_id += 1
+
+            # сохраняем в глобальный словарь
+            purchase_to_games[purchase_id] = chosen_games
 
             purchase_id += 1  # следующая покупка
 
@@ -523,3 +539,21 @@ def generate_library():
         f.write(",\n".join(lines) + ";")
 
     print("Файл library.sql успешно создан!")
+
+def generate_library():
+    with open("library.sql", "w", encoding="utf-8") as f:
+        f.write("INSERT INTO library (user_id, game_id, purchase_id, added_date) VALUES\n")
+        lines = []
+
+        for purchase_id, user_id in purchase_to_user.items():
+            added_date_str = purchase_to_date[purchase_id]
+            games_in_purchase = purchase_to_games.get(purchase_id, [])
+
+            for game_id in games_in_purchase:
+                line = f"({user_id}, {game_id}, {purchase_id}, '{added_date_str}')"
+                lines.append(line)
+
+        f.write(",\n".join(lines) + ";")
+
+    print(f"Файл library.sql успешно создан! Всего записей: {len(lines)}")
+
