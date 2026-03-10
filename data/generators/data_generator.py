@@ -88,7 +88,7 @@ def generate_users():
     emails = list(emails)
     hashes = list(hashes)
 
-    with open("users.sql", "w", encoding="utf-8") as f:
+    with open("data/users.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO users (id, username, email, password_hash, created_at) VALUES\n")
 
         lines = []
@@ -100,6 +100,8 @@ def generate_users():
 
     print("Файл users.sql успешно создан!")
 
+
+# developers
 def generate_developers():
     developer_name_sample = [
         "Epic Games", "Valve Corporation", "Ubisoft", "Electronic Arts", "Rockstar Games", 
@@ -148,7 +150,7 @@ def generate_developers():
     id = [i for i in range(1, N_DEVELOPERS + 1)]
 
     
-    with open("developers.sql", "w", encoding="utf-8") as f:
+    with open("data/developers.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO developers (id, developer_name, description) VALUES\n")
         lines = []
         for i, name in enumerate(developer_name_sample, start=1):
@@ -161,6 +163,7 @@ def generate_developers():
     
     print("Файл developers.sql успешно создан!")
 
+# games
 def generate_games():
     
     game_words = [
@@ -183,7 +186,7 @@ def generate_games():
     start_date = datetime(1985, 1, 1)
     end_date = datetime(2026, 3, 10)
 
-    with open("games.sql", "w", encoding="utf-8") as f:
+    with open("data/games.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO games (developer_id, title, price, release_date, age_rating, description) VALUES\n")
         lines = []
 
@@ -226,7 +229,7 @@ def generate_games():
 
     print("Файл games.sql успешно создан!")
 
-
+# categories
 def generate_categories():
     category_names = [
         "Action", "Adventure", "RPG", "Strategy", "Simulation", "Sports",
@@ -243,7 +246,7 @@ def generate_categories():
         "Hack and Slash", "Beat 'em up'"
     ]
 
-    with open("categories.sql", "w", encoding="utf-8") as f:
+    with open("data/categories.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO categories (id, category_name) VALUES\n")
         lines = []
         for i, name in enumerate(category_names, start=1):
@@ -254,8 +257,9 @@ def generate_categories():
 
     print("Файл categories.sql успешно создан!")
 
+# game_categories
 def generate_game_categories():
-    with open("game_categories.sql", "w", encoding="utf-8") as f:
+    with open("data/game_categories.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO game_categories (game_id, category_id) VALUES\n")
         lines = []
         for game_id in range(1, N_GAMES + 1):
@@ -268,6 +272,7 @@ def generate_game_categories():
 
     print("Файл game_categories.sql успешно создан!")
 
+# achievements
 def generate_achievements():
     achievement_words = [
         "Master", "Legend", "Hero", "Conqueror", "Slayer", "Guardian", "Champion",
@@ -289,7 +294,7 @@ def generate_achievements():
 
     current_id = 1 
 
-    with open("achievements.sql", "w", encoding="utf-8") as f:
+    with open("data/achievements.sql", "w", encoding="utf-8") as f:
             f.write("INSERT INTO achievements (id, game_id, title, description) VALUES\n")
             lines = []
 
@@ -310,8 +315,9 @@ def generate_achievements():
 
             print("Файл achievements.sql успешно создан!")
 
+# user_achievements
 def generate_user_achievements():
-    with open("user_achievements.sql", "w", encoding="utf-8") as f:
+    with open("data/user_achievements.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO user_achievements (user_id, achievement_id, achieved_at) VALUES\n")
         lines = []
         for _ in range(N_USER_ACHIEVEMENTS):
@@ -325,13 +331,14 @@ def generate_user_achievements():
 
     print("Файл user_achievements.sql успешно создан!")
 
+# wallets
 def generate_wallets():
     currencies = ["USD", "EUR", "GBP", "JPY", "KZT"]
 
     start_date = datetime(2023, 1, 1)
     end_date = datetime(2026, 3, 10)
 
-    with open("wallets.sql", "w", encoding="utf-8") as f:
+    with open("data/wallets.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO wallets (user_id, currency, balance, updated_at) VALUES\n")
 
         lines = []
@@ -374,6 +381,7 @@ def generate_wallets():
 
     print("Файл wallets.sql успешно создан!")
 
+# purchases
 def generate_purchases():
     purchase_types = ["game", "dlc", "bundle", "in_game_purchase"]
     payment_methods = ["card", "paypal", "apple_pay", "google_pay", "qiwi", "wallet"]
@@ -384,7 +392,7 @@ def generate_purchases():
 
     global purchase_to_user, purchase_to_date
 
-    with open("purchases.sql", "w", encoding="utf-8") as f:
+    with open("data/purchases.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO purchases (purchase_id, user_id, purchase_type, payment_method, status, purchase_date, promo_id) VALUES\n")
         lines = []
         for i in range(N_PURCHASES):
@@ -409,6 +417,7 @@ def generate_purchases():
 
     print("Файл purchases.sql успешно создан!")
 
+# purchase_items
 def generate_purchase_items():
     MAX_PURCHASES_PER_USER = 12
     START_DATE = datetime(2023, 1, 1)
@@ -420,7 +429,7 @@ def generate_purchase_items():
     purchase_id = 1
     purchase_item_id = 1
 
-    for user_id in range(1, N_USERS + 1):
+    for _ in range(1, N_USERS + 1):
         num_purchases = random.randint(1, MAX_PURCHASES_PER_USER)
         last_purchase_date = START_DATE
 
@@ -448,7 +457,7 @@ def generate_purchase_items():
             purchase_id += 1  # следующая покупка
 
     # Записываем в SQL файл
-    with open("purchases_item.sql", "w", encoding="utf-8") as f:
+    with open("data/purchases_item.sql", "w", encoding="utf-8") as f:
         f.write(
             "INSERT INTO purchases_item (purchase_item_id, game_id, purchase_id, price_at_purchase) VALUES\n"
         )
@@ -456,8 +465,9 @@ def generate_purchase_items():
 
     print("Файл purchases_item.sql успешно создан!")
 
+# promotions
 def generate_promotions():
-    with open("promotions.sql", "w", encoding="utf-8") as f:
+    with open("data/promotions.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO promotions (promo_id, code, discount_percent, start_date, end_date) VALUES\n")
         lines = []
         for i in range(1, N_PROMOS + 1):
@@ -471,6 +481,7 @@ def generate_promotions():
 
     print("Файл promotions.sql успешно создан!")
 
+# badges
 def generate_badges():
     badge_names = [
         "Rookie", "Veteran", "Elite", "Master", "Legend", "Champion", "Conqueror",
@@ -482,7 +493,7 @@ def generate_badges():
         "Sci-Fi Enthusiast"
     ]
 
-    with open("badges.sql", "w", encoding="utf-8") as f:
+    with open("data/badges.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO badges (badge_id, user_id, title, awarded_at) VALUES\n")
         lines = []
         for badge_id in range(1, N_BADGES + 1):
@@ -495,8 +506,9 @@ def generate_badges():
         
     print("Файл badges.sql успешно создан!")
 
+# friends
 def generate_friends():
-    with open("friends.sql", "w", encoding="utf-8") as f:
+    with open("data/friends.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO friends (user_id, friend_id) VALUES\n")
         lines = []
         for _ in range(N_FRIEND_PAIRS*5):
@@ -509,8 +521,9 @@ def generate_friends():
 
     print("Файл friends.sql успешно создан!")
 
+# messages
 def generate_messages():
-    with open("messages.sql", "w", encoding="utf-8") as f:
+    with open("data/messages.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO messages (message_id, sender_id, receiver_id, content, sent_at) VALUES\n")
         lines = []
         for message_id in range(1, N_MESSAGES + 1):
@@ -526,22 +539,9 @@ def generate_messages():
 
     print("Файл messages.sql успешно создан!")
 
+# library
 def generate_library():
-    with open("library.sql", "w", encoding="utf-8") as f:
-        f.write("INSERT INTO library (user_id, game_id, purchase_id, added_date) VALUES\n")
-        lines = []
-        for user_id in range(1, N_USERS + 1):
-            owned_games = random.sample(range(1, N_GAMES + 1), random.randint(0, 20))  # до 20 игр в библиотеке
-            for game_id in owned_games:
-                added_at = datetime.now() - timedelta(days=random.randint(0, 365))
-                line = f"({user_id}, {game_id}, '{added_at.strftime('%Y-%m-%d %H:%M:%S')}')"
-                lines.append(line)
-        f.write(",\n".join(lines) + ";")
-
-    print("Файл library.sql успешно создан!")
-
-def generate_library():
-    with open("library.sql", "w", encoding="utf-8") as f:
+    with open("data/library.sql", "w", encoding="utf-8") as f:
         f.write("INSERT INTO library (user_id, game_id, purchase_id, added_date) VALUES\n")
         lines = []
 
@@ -555,5 +555,78 @@ def generate_library():
 
         f.write(",\n".join(lines) + ";")
 
-    print(f"Файл library.sql успешно создан! Всего записей: {len(lines)}")
+    print(f"Файл library.sql успешно создан!")
 
+# sessions
+def generate_sessions():
+    with open("data/sessions.sql", "w", encoding="utf-8") as f:
+        f.write("INSERT INTO sessions (session_id, user_id, game_id, start_time, end_time) VALUES\n")
+        lines = []
+        session_id_counter = 1
+
+        for purchase_id, user_id in purchase_to_user.items():
+            purchase_date_str = purchase_to_date[purchase_id]
+            games_in_purchase = purchase_to_games.get(purchase_id, [])
+
+            for game_id in games_in_purchase:
+                purchase_datetime = datetime.strptime(purchase_date_str, "%Y-%m-%d %H:%M:%S")
+                start_offset_minutes = random.randint(0, 60 * 24)  # до 24 часов после покупки
+                start_time = purchase_datetime + timedelta(minutes=start_offset_minutes)
+                end_time = start_time + timedelta(minutes=random.randint(5, 180))  # сессия 5-180 мин
+
+                line = f"({session_id_counter}, {user_id}, {game_id}, '{start_time.strftime('%Y-%m-%d %H:%M:%S')}', '{end_time.strftime('%Y-%m-%d %H:%M:%S')}')"
+                lines.append(line)
+                session_id_counter += 1
+
+        f.write(",\n".join(lines) + ";")
+
+    print(f"Файл sessions.sql успешно создан! Всего сессий: {len(lines)}")
+
+# reviews
+def generate_reviews():
+    with open("data/reviews.sql", "w", encoding="utf-8") as f:
+            f.write("INSERT INTO reviews (review_id, user_id, game_id, review_type, comment, review_date) VALUES\n")
+            lines = []
+            review_id_counter = 1
+
+            for purchase_id, user_id in purchase_to_user.items():
+                purchase_date_str = purchase_to_date[purchase_id]
+                games_in_purchase = purchase_to_games.get(purchase_id, [])
+
+                for game_id in games_in_purchase:
+                    review_type = random.choice(["positive", "negative"])
+                    comment = f"This is a review for game {game_id} by user {user_id}."
+                    
+                    # Случайная дата отзыва в пределах 30 дней после покупки
+                    purchase_datetime = datetime.strptime(purchase_date_str, "%Y-%m-%d %H:%M:%S")
+                    review_offset_days = random.randint(0, 30)
+                    review_date = purchase_datetime + timedelta(days=review_offset_days)
+
+                    line = f"({review_id_counter}, {user_id}, {game_id}, '{review_type}', '{comment}', '{review_date.strftime('%Y-%m-%d %H:%M:%S')}')"
+                    lines.append(line)
+                    review_id_counter += 1
+
+            f.write(",\n".join(lines) + ";")
+
+    print(f"Файл reviews.sql успешно создан! Всего отзывов: {len(lines)}")
+
+def main():
+    generate_users()
+    generate_developers()
+    generate_categories()
+    generate_game_categories()
+    generate_achievements()
+    generate_user_achievements()
+    generate_wallets()
+    generate_promotions()
+    generate_friends()
+    generate_messages()
+    generate_games()
+    generate_purchase_items()
+    generate_purchases()
+    generate_sessions()
+    generate_reviews()
+    generate_library()
+    generate_badges()
+
+main()
