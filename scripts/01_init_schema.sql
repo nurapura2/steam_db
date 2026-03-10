@@ -40,14 +40,6 @@ CREATE TABLE "promotions" (
   "end_date" timestamptz
 );
 
-CREATE TABLE "reports" (
-  "report_id" serial PRIMARY KEY,
-  "top_game_id" integer,
-  "total_revenue" numeric(15,2),
-  "average_rating" numeric(3,2),
-  "generated_at" timestamptz DEFAULT (now())
-);
-
 CREATE TABLE "badges" (
   "badge_id" serial PRIMARY KEY,
   "user_id" integer NOT NULL,
@@ -136,11 +128,11 @@ CREATE TABLE "user_achievements" (
   PRIMARY KEY ("user_id", "achievement_id")
 );
 
-COMMENT ON COLUMN "promotions"."discount_percent" IS 'e.g. 15.00 for 15%';
+ALTER TABLE "wallets" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
-ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "wallets" ("user_id");
+ALTER TABLE "library" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
-ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "library" ("user_id");
+ALTER TABLE "library" ADD FOREIGN KEY ("purchase_id") REFERENCES "purchases" ("purchase_id");
 
 ALTER TABLE "reviews" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
@@ -170,15 +162,11 @@ ALTER TABLE "sessions" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id"
 
 ALTER TABLE "sessions" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
 
-ALTER TABLE "reports" ADD FOREIGN KEY ("top_game_id") REFERENCES "games" ("game_id");
-
 ALTER TABLE "purchases" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
 
 ALTER TABLE "purchases_item" ADD FOREIGN KEY ("purchase_id") REFERENCES "purchases" ("purchase_id");
 
 ALTER TABLE "purchases_item" ADD FOREIGN KEY ("game_id") REFERENCES "games" ("game_id");
-
-ALTER TABLE "purchases" ADD FOREIGN KEY ("purchase_id") REFERENCES "library" ("purchase_id");
 
 ALTER TABLE "purchases" ADD FOREIGN KEY ("promo_id") REFERENCES "promotions" ("promo_id");
 
